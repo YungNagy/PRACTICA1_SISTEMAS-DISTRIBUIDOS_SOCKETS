@@ -17,10 +17,11 @@ int main(int argc, char **argv){
   int conexion_servidor, conexion_cliente, puerto; //declaramos las variables
   socklen_t longc; //Debemos declarar una variable que contendrá la longitud de la estructura
   struct sockaddr_in servidor, cliente;
-  char *buffer; //Declaramos una variable que contendrá los mensajes que recibamos
+  char buffer[100]; //Declaramos una variable que contendrá los mensajes que recibamos
   puerto = atoi(argv[1]);
   conexion_servidor = socket(AF_INET, SOCK_STREAM, 0); //creamos el socket
   bzero((char *)&servidor, sizeof(servidor)); //llenamos la estructura de 0's
+  
   servidor.sin_family = AF_INET; //asignamos a la estructura
   servidor.sin_port = htons(puerto);
   servidor.sin_addr.s_addr = INADDR_ANY; //esta macro especifica nuestra dirección
@@ -41,26 +42,27 @@ int main(int argc, char **argv){
     return 1;
   }
   printf("Conectando con %s:%d\n", inet_ntoa(cliente.sin_addr),htons(cliente.sin_port));  
-   while(1){ 
-    if(recv(conexion_cliente, buffer, 100, 0) < 0)
+  int num,y=1,ans;
+  while(y==1){ 
+    if(read(conexion_cliente, &num, sizeof(int)) < 0)
   { //Comenzamos a recibir datos del cliente
-    //Si recv() recibe 0 el cliente ha cerrado la conexion. Si es menor que 0 ha habido algún error.
+    //Si read() recibe 0 el cliente ha cerrado la conexion. Si es menor que 0 ha habido algún error.
     printf("Error al recibir los datos\n");
     close(conexion_servidor);
     return 1;
   }
   else
-  {
-    printf("Mensaje recibido: %s\n", buffer);
-    int num=atoi(buffer);
-    num=num+1;
-    bzero((char *)&buffer,sizeof(buffer));
-    sprintf(letra,"%d",num);
-    
-    send(conexion_cliente,letra, 15, 0);
-    
+  { 
+    if(num==2608){
+      y=0;
+    }else{
+      printf("Mensaje recibido: %d\n", num);
+      num=num+1;
+      write(conexion_cliente,&num, sizeof(int));
+    }
   }
    }
+  close(conexion_cliente);
   close(conexion_servidor);
   return 0;
 }
