@@ -2,6 +2,8 @@
 
 import java.io.*;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class Cliente_de_Eco {
     public static void main(String[] args) throws IOException {
@@ -23,10 +25,15 @@ public class Cliente_de_Eco {
             BufferedReader teclado = new BufferedReader( new InputStreamReader(System.in))
         ) {
             String EcoServidor,Escritura;
+            
             while ((Escritura = teclado.readLine()) != null) {
-               escritor.println(teclado.readLine());
-               EcoServidor = lector.readLine();
-               System.out.println("El eco del servidor dice:  " + EcoServidor);
+                ByteBuffer bb = ByteBuffer.wrap(Escritura.getBytes());
+                bb.order(ByteOrder.BIG_ENDIAN);
+                //escritor.println(teclado.readLine());
+                escritor.println((char)bb.get());
+                
+                EcoServidor = lector.readLine();
+                System.out.println("El eco del servidor dice:  " + EcoServidor);
             }
         } catch (UnknownHostException e) {
             System.err.println("No conozco al host " + nombreHost);

@@ -41,27 +41,24 @@ int main(int argc, char **argv){
     close(conexion_servidor);
     return 1;
   }
-  printf("Conectando con %s:%d\n", inet_ntoa(cliente.sin_addr),htons(cliente.sin_port));  
-  int num,y=1,ans;
-  while(y==1){ 
-    if(read(conexion_cliente, &num, sizeof(int)) < 0)
-  { //Comenzamos a recibir datos del cliente
-    //Si read() recibe 0 el cliente ha cerrado la conexion. Si es menor que 0 ha habido algún error.
-    printf("Error al recibir los datos\n");
-    close(conexion_servidor);
-    return 1;
-  }
-  else
-  { 
-    if(num==2608){
-      y=0;
-    }else{
+  //printf("Conectando con %s:%d\n", inet_ntoa(cliente.sin_addr),htons(cliente.sin_port));  
+  printf("Conectando con %s:%d\n", inet_ntoa(cliente.sin_addr),cliente.sin_port);  
+  int num = 2,aux;
+  while(num != 1){ 
+    aux = read(conexion_cliente, &num, sizeof(int));
+
+    if( aux < 0){ //Comenzamos a recibir datos del cliente
+      //Si read() recibe 0 el cliente ha cerrado la conexion. Si es menor que 0 ha habido algún error.
+      printf("Error al recibir los datos\n");
+      close(conexion_servidor);
+      return 1;
+    }else{ 
       printf("Mensaje recibido: %d\n", num);
       num=num+1;
+      //num=htonl(num);
       write(conexion_cliente,&num, sizeof(int));
     }
   }
-   }
   close(conexion_cliente);
   close(conexion_servidor);
   return 0;
